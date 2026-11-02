@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العمليات الحسابية في بايثون - الصف العاشر</title>
+    <!-- استدعاء خط تجريدي عصري وأيقونات FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+            --card-bg: #ffffff;
+            --primary-color: #6C5CE7;
+            --secondary-color: #FD79A8;
+            --text-color: #2D3436;
+            --accent-pink: #FF7675;
+            --accent-purple: #A29BFE;
+            --accent-yellow: #FFEAA7;
+            --accent-green: #55E6C1;
+            --accent-blue: #74B9FF;
+            --accent-orange: #FAB1A0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+            padding: 30px 15px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* الهيدر والعنوان */
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFEAA7, #FF7675);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        /* شبكة اللوحات التعليمية */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        /* تصميم الكارت/اللوحة */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.25);
+        }
+
+        /* ألوان حدود وحواشي اللوحات */
+        .card[data-op="+"] { border-color: #FF7675; }
+        .card[data-op="-"] { border-color: #74B9FF; }
+        .card[data-op="*"] { border-color: #55E6C1; }
+        .card[data-op="/"] { border-color: #FFEAA7; }
+        .card[data-op="//"] { border-color: #A29BFE; }
+        .card[data-op="%"] { border-color: #FD79A8; }
+        .card[data-op="**"] { border-color: #FAB1A0; }
+
+        .card-header {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .card[data-op="+"] .card-header { background: linear-gradient(45deg, #FF7675, #d63031); }
+        .card[data-op="-"] .card-header { background: linear-gradient(45deg, #74B9FF, #0984e3); }
+        .card[data-op="*"] .card-header { background: linear-gradient(45deg, #55E6C1, #00b894); }
+        .card[data-op="/"] .card-header { background: linear-gradient(45deg, #FDCB6E, #e17055); }
+        .card[data-op="//"] .card-header { background: linear-gradient(45deg, #A29BFE, #6c5ce7); }
+        .card[data-op="%"] .card-header { background: linear-gradient(45deg, #FD79A8, #e84393); }
+        .card[data-op="**"] .card-header { background: linear-gradient(45deg, #FAB1A0, #e17055); }
+
+        .symbol-badge {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: rgba(255,255,255,0.25);
+            width: 90px;
+            height: 90px;
+            line-height: 90px;
+            border-radius: 50%;
+            margin: 0 auto 10px auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            font-family: monospace;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .card-subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            background: #F8F9FA;
+            padding: 12px;
+            border-radius: 10px;
+            border-right: 4px solid var(--primary-color);
+        }
+
+        /* كود بايثون والشاشة التفاعلية */
+        .code-box {
+            background: #2D3436;
+            color: #DFE6E9;
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+        }
+
+        .code-box span.var { color: #74B9FF; }
+        .code-box span.op { color: #FF7675; font-weight: bold; }
+        .code-box span.func { color: #55E6C1; }
+        .code-box span.num { color: #FFEAA7; }
+
+        .result-box {
+            background: #E1F5FE;
+            border: 2px dashed #0288D1;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            color: #01579B;
+            transition: all 0.3s ease;
+        }
+
+        /* زر التفاعل مع الصوت/التأثير */
+        .interactive-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .interactive-btn:hover {
+            background: #5649c0;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* أنيميشن */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse-anim {
+            animation: pulse 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-code"></i> العمليات الحسابية في بايثون</h1>
+            <p>منهج تقنية المعلومات - الصف العاشر ✨</p>
+        </header>
+
+        <div class="cards-grid">
+
+            <!-- 1. الجمع -->
+            <div class="card" data-op="+">
+                <div class="card-header">
+                    <div class="symbol-badge">+</div>
+                    <div class="card-title">الجمع</div>
+                    <div class="card-subtitle">Addition</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُستخدم عملية الجمع لإضافة قيمتين أو متغيرين للحصول على المجموع الكلي.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">+</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-add">
+                        الناتج: <strong>28</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-add', '28')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. الطرح -->
+            <div class="card" data-op="-">
+                <div class="card-header">
+                    <div class="symbol-badge">-</div>
+                    <div class="card-title">الطرح</div>
+                    <div class="card-subtitle">Subtraction</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُستخدم عملية الطرح لإيجاد الفرق بين قيمة ومتغير آخر.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">-</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-sub">
+                        الناتج: <strong>18</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-sub', '18')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. الضرب -->
+            <div class="card" data-op="*">
+                <div class="card-header">
+                    <div class="symbol-badge">*</div>
+                    <div class="card-title">الضرب</div>
+                    <div class="card-subtitle">Multiplication</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُستخدم عملية الضرب لضرب القيم، ويرمز لها بالنجمة <strong style="font-family: monospace;">*</strong> في لغة بايثون.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">*</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-mul">
+                        الناتج: <strong>115</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-mul', '115')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. القسمة -->
+            <div class="card" data-op="/">
+                <div class="card-header">
+                    <div class="symbol-badge">/</div>
+                    <div class="card-title">القسمة</div>
+                    <div class="card-subtitle">Division</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُرجع ناتج القسمة العادية على شكل عدد عشري (Float) حتى لو كانت الأعداد صحيحة.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">/</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-div">
+                        الناتج: <strong>4.6</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-div', '4.6')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. ناتج القسمة الصحيح -->
+            <div class="card" data-op="//">
+                <div class="card-header">
+                    <div class="symbol-badge">//</div>
+                    <div class="card-title">ناتج القسمة الصحيح</div>
+                    <div class="card-subtitle">Floor Division</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تقوم بإجراء القسمة وتتجاهل الجزء العشري/الكسور، لتُعطي الناتج كعدد صحيح فقط.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">//</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-fdiv">
+                        الناتج: <strong>4</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-fdiv', '4')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 6. باقي القسمة -->
+            <div class="card" data-op="%">
+                <div class="card-header">
+                    <div class="symbol-badge">%</div>
+                    <div class="card-title">باقي القسمة</div>
+                    <div class="card-subtitle">Modulus</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُعطي المتبقي من عملية القسمة بعد أخذ العدد الصحيح منها.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_1</span> = <span class="num">23</span><br>
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_1</span> <span class="op">%</span> <span class="var">num_2</span>)
+                    </div>
+                    <div class="result-box" id="res-mod">
+                        الناتج: <strong>3</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-mod', '3')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+            <!-- 7. الأس/الرفع -->
+            <div class="card" data-op="**">
+                <div class="card-header">
+                    <div class="symbol-badge">**</div>
+                    <div class="card-title">رفع العدد إلى أس</div>
+                    <div class="card-subtitle">Exponentiation</div>
+                </div>
+                <div class="card-body">
+                    <div class="description">
+                        تُستخدم لرفع العدد لأس معين المُمَثَّل بجمعتين من النجوم <strong style="font-family: monospace;">**</strong>.
+                    </div>
+                    <div class="code-box">
+                        <span class="var">num_2</span> = <span class="num">5</span><br>
+                        <span class="func">print</span>(<span class="var">num_2</span> <span class="op">**</span> <span class="num">2</span>)<br>
+                        <span class="func">print</span>(<span class="var">num_2</span> <span class="op">**</span> <span class="num">3</span>)
+                    </div>
+                    <div class="result-box" id="res-exp">
+                        الناتج: <strong>25</strong> و <strong>125</strong>
+                    </div>
+                    <button class="interactive-btn" onclick="runDemo('res-exp', '25 و 125')">
+                        <i class="fa-solid fa-play"></i> تشغيل الكود
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p>تم إعداد هذه اللوحات التعليمية خصيصاً لطالبات الصف العاشر | مادة تقنية المعلومات 💻🌸</p>
+        </footer>
+    </div>
+
+    <script>
+        function runDemo(elementId, resultValue) {
+            const resultBox = document.getElementById(elementId);
+            
+            // إحداث تأثير بصري عند الضغط
+            resultBox.classList.remove('pulse-anim');
+            void resultBox.offsetWidth; // إعادة تشغيل الأنيميشن
+            resultBox.classList.add('pulse-anim');
+            
+            // تحديث النص لتأكيد التشغيل
+            resultBox.style.backgroundColor = '#C8E6C9';
+            resultBox.style.borderColor = '#388E3C';
+            resultBox.style.color = '#1B5E20';
+            resultBox.innerHTML = '⚡ الشاشة: <strong>' + resultValue + '</strong>';
+
+            setTimeout(() => {
+                resultBox.style.backgroundColor = '#E1F5FE';
+                resultBox.style.borderColor = '#0288D1';
+                resultBox.style.color = '#01579B';
+                resultBox.innerHTML = 'الناتج: <strong>' + resultValue + '</strong>';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
